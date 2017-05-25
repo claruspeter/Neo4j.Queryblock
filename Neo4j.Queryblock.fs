@@ -28,8 +28,9 @@ type SimpleNeo4jQueryBuilder() =
     [<CustomOperation("selectCount")>]
     member x.SelectCount(source:Query<'T>) : int = failwith "Never executed"
 
-    [<CustomOperation("select")>]
-    member x.Select(source:Query<'T>, [<ProjectionParameter>] f:'T -> 'R) : IEnumerable<'R> = seq[]
+    [<CustomOperation("match")>]
+    member x.Match(source:Query<'T>, [<ProjectionParameter>] f:'T -> 'R) : Query<'R> = NA
+
 
 let neo4j = SimpleNeo4jQueryBuilder()
 
@@ -52,6 +53,8 @@ type QueryProjection =
 /// projection at the end.
 type Query = 
   { Source : string
+    tTyp: Type
+    rTyp: Type
     Where : QueryCondition list
     Select : QueryProjection option }
 
@@ -73,7 +76,7 @@ let private translateWhere = function
           "'p.Prop <op> <value>' are supported!") e
 
   // This should not happen - the parameter is always lambda!
-  | _ -> failwith "Expected lambda expression"
+  | something -> failwith (sprintf "Expected lambda expression but got %A" something)
 
 /// Translate property access (may be in a tuple or not)
 let private translatePropGet varName = function
@@ -99,7 +102,7 @@ let private translateProjection e =
       [translatePropGet var1.Name arg]
   | _ -> failwith "Expected lambda expression"
 
-let rec private translateQuery e = 
+let rec translateQuery e = 
   match e with
   // simpleq.SelectAttrs(<source>, fun p -> p.Name, p.Age)
   | SpecificCall <@@ neo4j.SelectAttrs @@> 
@@ -108,12 +111,12 @@ let rec private translateQuery e =
       let s = translateProjection proj
       { q with Select = Some(SelectAttributes s) }
 
-  // simpleq.Select(<source>, fun p -> p )
-  | SpecificCall <@@ neo4j.Select @@> 
-        (builder, [tTyp; rTyp], [source; proj]) -> 
-      let q = translateQuery source
-      let s = translateProjection proj
-      { q with Select = Some(SelectProps s) }
+  // // simpleq.Select(<source>, fun p -> p )
+  // | SpecificCall <@@ neo4j.Select @@> 
+  //       (builder, [tTyp; rTyp], [source; proj]) -> 
+  //     let q = translateQuery source
+  //     let s = translateProjection proj
+  //     { q with Select = Some(SelectProps s) }
   
   // simpleq.SelectCount(<source>)
   | SpecificCall <@@ neo4j.SelectCount @@> 
@@ -138,7 +141,19 @@ let rec private translateQuery e =
             // when prop.DeclaringType = typeof<Neo4jDB> 
             -> prop.Name
         | _ -> failwith "Only sources of the form 'DB.<Prop>' are supported!"
-      { Source = source; Where = []; Select = None }
+      { Source = source; Where = []; Select = None; tTyp=tTyp; rTyp = rTyp }
+
+  // simpleq.Match(DB.People, <...>)
+  | SpecificCall <@@ neo4j.Match @@> 
+        (builder, [tTyp; rTyp], [source; body]) -> 
+      let source = 
+        // Extract the table name from 'DB.People'
+        match source with
+        | PropertyGet(None, prop, [])
+            // when prop.DeclaringType = typeof<Neo4jDB> 
+            -> prop.Name
+        | _ -> failwith "Only sources of the form 'DB.<Prop>' are supported!"
+      { Source = source; Where = []; Select = None; tTyp=tTyp; rTyp = rTyp }
 
   // This should never happen
   | e -> failwithf "Unsupported query operation: %A" e
@@ -149,11 +164,18 @@ type Person = { name: string; born: int;}
 [<CLIMutable>]
 type Movie = { title: string; released: int; tagline: string; }
 
-type SimpleNeo4jQueryBuilder with
-  member x.Run(source:Expr<Query<Movie>>) : Movie = 
-    let translation = source |> translateQuery
-    {Movie.released = 1969; title="My Movie"; tagline="fall into success!" } 
-  member x.Run(source:Expr<Query<Person>>) : Person = 
-    let translation = source |> translateQuery
-    {Person.name = "Peter"; Person.born=1973}
+// type SimpleNeo4jQueryBuilder with
+//   member x.Run(source:Expr<Query<Movie>>) : Movie = 
+//     let translation = source |> translateQuery
+//     {Movie.released = 1969; title="My Movie"; tagline="fall into success!" } 
+//   member x.Run(source:Expr<Query<Person>>) : Person = 
+//     let translation = source |> translateQuery
+//     {Person.name = "Peter"; Person.born=1973}
+//   member x.Run(source:Expr<Query<Person * Movie>>) : Person * Movie = 
+//     let translation = source |> translateQuery
+//     {Person.name = "Peter"; Person.born=1973} , {Movie.released = 1969; title="My Movie"; tagline="fall into success!" } 
+//   member x.Run(source:Expr<Query<'T>>) : 'T = 
+//     let translation = source |> translateQuery
+//     Unchecked.defaultof<'T>
+
 

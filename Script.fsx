@@ -26,8 +26,8 @@ type Neo4jDB =
 
 let q = 
   neo4j { 
-    for p in Neo4jDB.People do
-    where (p.born > 1980 )
+    for a in Neo4jDB.People do
+    where (a.born > 1980 )
   }
 
-
+q |> translateQuery
