@@ -9,4 +9,25 @@ open System
 open Neo4jClient
 open Neo4j.Queryblock
 
-let b=2
+[<Literal>]
+let connectionstring = @"http://localhost:7474/db/data"
+[<Literal>]
+let user = "neo4j" 
+[<Literal>]
+let pwd = "password"
+let db = 
+    let db = new Neo4jClient.GraphClient(Uri(connectionstring),user ,pwd)
+    db.Connect()
+    db
+
+type Neo4jDB =
+    static member People : Query<Person> = NA
+    static member Movies : Query<Movie> = NA
+
+let q = 
+  neo4j { 
+    for p in Neo4jDB.People do
+    where (p.born > 1980 )
+  }
+
+

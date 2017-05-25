@@ -12,7 +12,9 @@ something
     something
 ````
 
+## Thanks
 
+Thanks for the excellent article Tomas!  <http://tomasp.net/blog/2015/query-translation/>
 # Licence
 
 This is free and unencumbered software released into the public domain.
