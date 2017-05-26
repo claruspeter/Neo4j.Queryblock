@@ -26,8 +26,8 @@ type Neo4jDB =
 
 let q = 
   neo4j { 
-    for a in Neo4jDB.People do
-    where (a.born > 1980 )
+    let m = "(m:Movie)"
+    return m
   }
 
-q |> translateQuery
+
