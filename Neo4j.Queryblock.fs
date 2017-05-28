@@ -8,7 +8,7 @@ open Microsoft.FSharp.Quotations
 open Microsoft.FSharp.Linq.RuntimeHelpers
 open Microsoft.FSharp.Quotations.Patterns
 open Microsoft.FSharp.Quotations.DerivedPatterns
-//open Neo4jClient
+open Neo4jClient
 
 type Query<'T> = NA
 
@@ -19,13 +19,13 @@ type Neo4jQuery<'a> = {
 
 
 type SimpleNeo4jQueryBuilder() =
-    [<CustomOperation("start")>]
-    member x.Bind( m , f) : Neo4jQuery<'R> = 
-      printfn "Bind"  
-      {matchClause = f; variable=m }
-    member x.Return(t:'T)  = 
+    member x.Bind( m , f) : Cypher.ICypherFluentQuery = 
+      printfn "Bind: %A  && %A"  m f
+      m
+      
+    member x.ReturnFrom(t:'T)  = 
       printfn "Return"  
-      {matchClause = t.ToString(); variable=t}
+      t
 
     // member x.Quote(e:Expr<_>) = e
 
@@ -37,9 +37,11 @@ type SimpleNeo4jQueryBuilder() =
     
     // [<CustomOperation("selectCount")>]
     // member x.SelectCount(source:Query<'T>) : int = failwith "Never executed"
+
+
     member x.Zero() = 
         printfn "Zero"
-        {matchClause=""; variable=""}
+        
 
 
 

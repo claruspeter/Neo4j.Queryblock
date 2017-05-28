@@ -71,6 +71,33 @@
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5'">
       <ItemGroup>
+        <Reference Include="metatp">
+          <HintPath>packages\MetaTp\lib\net45\metatp.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5'">
+      <ItemGroup>
+        <Reference Include="Neo4j.Typeprovider.DesignTime">
+          <HintPath>packages\Neo4j.TypeProvider\lib\net45\Neo4j.Typeprovider.DesignTime.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+        <Reference Include="neo4jtypeprovider">
+          <HintPath>packages\Neo4j.TypeProvider\lib\net45\neo4jtypeprovider.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5'">
+      <ItemGroup>
         <Reference Include="Neo4jClient">
           <HintPath>packages\Neo4jClient\lib\net45\Neo4jClient.dll</HintPath>
           <Private>True</Private>

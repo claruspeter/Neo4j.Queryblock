@@ -3,4 +3,5 @@ framework: net45
 
 nuget FAKE
 nuget Neo4jClient
+nuget Neo4j.TypeProvider
 

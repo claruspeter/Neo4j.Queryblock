@@ -4,10 +4,12 @@
 #I @"build"
 #r "Neo4j.Queryblock"
 #r "Neo4jClient"
+#r "neo4jtypeprovider"
 
 open System
 open Neo4jClient
 open Neo4j.Queryblock
+open Neo4j.TypeProvider
 
 [<Literal>]
 let connectionstring = @"http://localhost:7474/db/data"
@@ -20,14 +22,15 @@ let db =
     db.Connect()
     db
 
+type schema = Neo4j.TypeProvider.Schema<connectionstring, user, pwd>
+
 type Neo4jDB =
-    static member People : Query<Person> = NA
-    static member Movies : Query<Movie> = NA
+    static member People : Query<schema.Person> = NA
+    static member Movies : Query<schema.Movie> = NA
 
 let q = 
   neo4j { 
-    let m = "(m:Movie)"
-    return m
+    db.Cypher.Match "(m:Movie)"
   }
 
 
