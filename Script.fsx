@@ -28,9 +28,20 @@ type Neo4jDB =
     static member People : Query<schema.Person> = NA
     static member Movies : Query<schema.Movie> = NA
 
+type qqq = { paras: string list; clause: string  }
+
+let (-->) a b =
+   (a,b)// { paras = [a;b]; clause= sprintf "(%s)-->(%s)" a b }
+
+
 let q = 
   neo4j { 
-    db.Cypher.Match "(m:Movie)"
+    // let! p, m = db.Cypher.Match "(p:Person)-->(m:Movie)" |> (fun _ -> (1,{Movie.title=""; released=1973; tagline="hello!"}))
+    // let! m = {Movie.title=""; released=1973; tagline="hello!"}
+    // let! p = 42
+    // printfn "hello"
+    let! p,m = "p" --> "m"
+    yield! p
   }
 
 

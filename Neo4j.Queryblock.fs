@@ -19,18 +19,33 @@ type Neo4jQuery<'a> = {
 
 
 type SimpleNeo4jQueryBuilder() =
-    member x.Bind( m , f) : Cypher.ICypherFluentQuery = 
+    member x.Bind( m , f)  = 
       printfn "Bind: %A  && %A"  m f
       m
-      
+
     member x.ReturnFrom(t:'T)  = 
+      printfn "ReturnFrom"  
+      t
+
+    member x.Return(t:'T)  = 
       printfn "Return"  
       t
 
-    // member x.Quote(e:Expr<_>) = e
+    member x.YieldFrom(t:'T)  = 
+      printfn "YieldFrom"  
+      t
 
-    // [<CustomOperation("where", MaintainsVariableSpace=true)>]
-    // member x.Where ( source:Query<'T>, [<ProjectionParameter>] f:'T -> bool ) : Query<'T> = NA
+    member x.Yield(t:'T)  = 
+      printfn "Yield"  
+      t
+    
+    //member this.For(sequence:seq<_>, body) =
+
+    //member x.Quote(e:Expr<_>) = e
+
+    [<CustomOperation("where", MaintainsVariableSpace=true)>]
+    member x.Where ( source, [<ProjectionParameter>] f:'T -> bool ) = 
+     source
     
     // [<CustomOperation("selectAttrs")>]
     // member x.SelectAttrs ( source:Query<'T>, [<ProjectionParameter>] f:'T -> 'R) : Query<'R> = NA
